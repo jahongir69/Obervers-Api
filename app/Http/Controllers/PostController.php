@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
@@ -11,7 +12,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        return PostResource::collection(Post::with('user')->paginate(5));
+        return PostResource::collection(Post::with('user')->paginate(10));
     }
 
     public function store(PostRequest $request)
@@ -27,27 +28,35 @@ class PostController extends Controller
 
     public function update(PostRequest $request, Post $post)
     {
-        if (Auth::id() !== $post->user_id) {
-            return response()->json(['message' => 'Siz faqat oz postlaringizni tahrirlashingiz mumkin'], 403);
+        if ($post->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Siz faqat o‘z postingizni tahrirlashingiz mumkin!'], 403);
         }
+
         $post->update($request->validated());
+
         return new PostResource($post);
     }
 
     public function destroy(Post $post)
     {
-        if (Auth::id() !== $post->user_id) {
-            return response()->json(['message' => 'Siz faqat oz postlaringizni ochirishingiz mumkin'], 403);
+        if ($post->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Siz faqat o‘z postingizni o‘chirishingiz mumkin!'], 403);
         }
+
         $post->delete();
-        return response()->json(['message' => 'Post ochirildi']);
+
+        return response()->json(['message' => 'Post muvaffaqiyatli o‘chirildi!'], 200);
     }
+
     public function search(Request $request)
     {
-        $query = $request->input('query');
-        $posts = Post::where('title', 'like', "%$query%")->paginate(5);
-        return PostResource::collection($posts);
-    }
-    
+        $query = Post::query();
 
+        if ($request->has('q')) {
+            $query->where('title', 'like', '%' . $request->q . '%')
+                  ->orWhere('body', 'like', '%' . $request->q . '%');
+        }
+
+        return PostResource::collection($query->paginate(10));
+    }
 }

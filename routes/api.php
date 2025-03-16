@@ -17,13 +17,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/posts', PostController::class);
     Route::get('/posts/search', [PostController::class, 'search']);
 });
-
 Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/search', [PostController::class, 'search']);
+Route::post('/posts', [PostController::class, 'store'])->middleware('auth:sanctum');
 Route::get('/posts/{post}', [PostController::class, 'show']);
-Route::get('/posts/search', [PostController::class, 'search'])->name('posts.search');
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/posts', [PostController::class, 'store']);
-    Route::put('/posts/{post}', [PostController::class, 'update']);
-    Route::delete('/posts/{post}', [PostController::class, 'destroy']);
-});
+Route::put('/posts/{post}', [PostController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/posts/{post}', [PostController::class, 'destroy'])->middleware('auth:sanctum');
