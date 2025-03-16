@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\PostObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,10 +10,12 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'slug', 'user_id'];
+    protected $fillable = ['title', 'slug', 'description', 'user_id'];
 
-    public function user()
+    
+    protected static function boot()
     {
-        return $this->belongsTo(User::class);
+        parent::boot();
+        static::observe(PostObserver::class);
     }
 }
