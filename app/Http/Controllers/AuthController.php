@@ -12,33 +12,39 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Ro‘yxatdan o‘tish
+    
     public function register(RegisterRequest $request)
     {
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'avatar' => $request->file('avatar') ? $request->file('avatar')->store('avatars') : null,
         ]);
 
-        event(new UserRegistered($user)); // Eventni ishga tushiramiz
+        
+        event(new UserRegistered($user));
 
-        return response()->json(['message' => 'Ro‘yxatdan o‘tish muvaffaqiyatli. Emailingizni tasdiqlang!'], 201);
+        return response()->json(['message' => 'Foydalanuvchi muvaffaqiyatli ro‘yxatdan o‘tdi! Emailingizni tasdiqlang!'], 201);
     }
 
-    // Kirish
+
     public function login(LoginRequest $request)
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Login yoki parol noto‘g‘ri'], 401);
+            return response()->json(['message' => 'Email yoki parol noto‘g‘ri!'], 401);
         }
 
         $token = Auth::user()->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['message' => 'Tizimga muvaffaqiyatli kirdingiz', 'token' => $token], 200);
+        return response()->json([
+            'message' => 'Tizimga muvaffaqiyatli kirdingiz',
+            'token' => $token
+        ], 200);
     }
 
-    // Chiqish
+
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
