@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use App\Observers\PostObserver;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+
+#[ObservedBy([PostObserver::class])]
 
 class Post extends Model
 {
@@ -13,9 +16,4 @@ class Post extends Model
     protected $fillable = ['title', 'slug', 'description', 'user_id'];
 
     
-    protected static function boot()
-    {
-        parent::boot();
-        static::observe(PostObserver::class);
-    }
 }
